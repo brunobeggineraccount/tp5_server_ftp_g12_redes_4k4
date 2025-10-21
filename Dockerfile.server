@@ -1,0 +1,21 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && \
+    apt-get install -y vsftpd
+
+# Creamos un usuario y contraseña para el FTP
+# Usuario: ftpuser
+# Contraseña: ftppass
+RUN useradd -m -p $(openssl passwd -1 ftppass) ftpuser && \
+    mkdir -p /home/ftpuser/ftp_files && \
+    chown -R ftpuser:ftpuser /home/ftpuser/ftp_files
+
+RUN mkdir -p /var/run/vsftpd/empty && \
+    chown root:root /var/run/vsftpd/empty && \
+    chmod 755 /var/run/vsftpd/empty
+
+COPY vsftpd.conf /etc/vsftpd.conf
+
+EXPOSE 21 21100-21110
+
+CMD ["/usr/sbin/vsftpd", "/etc/vsftpd.conf"]
